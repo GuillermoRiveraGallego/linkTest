@@ -1,0 +1,316 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { preview, site } from '../config/site';
+
+/**
+ * Pagina SOLO para uso local: simula como se vera la tarjeta al
+ * compartir el enlace. No la compartas ni la despliegues como enlace.
+ */
+const base = Astro.site ?? new URL('http://localhost:4321');
+const shareURL = new URL('/sorpresa', base);
+const host = shareURL.host;
+const isLocal = /^(localhost|127\.0\.0\.1|\[?::1\]?)(:\d+)?$/.test(host);
+const imageURL = new URL(preview.image, base);
+---
+
+<Layout title="Vista previa (local)" description="Simulador local de la tarjeta">
+  <div class="aurora"></div>
+
+  <main class="wrap">
+    <header>
+      <p class="kicker">Herramienta local</p>
+      <h1>Así se verá el enlace</h1>
+      <p class="lead">
+        Simulación con los valores reales de <code>src/config/site.ts</code> y la
+        imagen real <code>public{preview.image}</code>. Cambia el archivo, guarda
+        y esta página se recarga sola.
+      </p>
+    </header>
+
+    <section class="grid">
+      <!-- Burbuja estilo chat -->
+      <div class="col">
+        <h2>Burbuja de chat</h2>
+        <div class="phone">
+          <div class="bubble">
+            <div class="card">
+              <img src={preview.image} alt={preview.imageAlt} width="1200" height="630" />
+              <div class="meta">
+                <p class="c-title">{preview.title}</p>
+                <p class="c-desc">{preview.description}</p>
+                <p class="c-host">{host}</p>
+              </div>
+            </div>
+            <p class="msg">{shareURL.href}</p>
+            <span class="time">21:04 ✓✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta grande estilo timeline -->
+      <div class="col">
+        <h2>Tarjeta grande (summary_large_image)</h2>
+        <div class="xcard">
+          <img src={preview.image} alt={preview.imageAlt} width="1200" height="630" />
+          <div class="xmeta">
+            <p class="c-host">{host}</p>
+            <p class="c-title">{preview.title}</p>
+            <p class="c-desc">{preview.description}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="checks">
+      <h2>Comprobaciones</h2>
+      <ul>
+        <li>
+          <span class="ok">OK</span> Las metas Open Graph están en el HTML de
+          <code>/sorpresa</code>, sin depender de JavaScript.
+        </li>
+        <li>
+          <span class="ok">OK</span> <code>og:image</code> absoluta →
+          <code>{imageURL.href}</code>
+        </li>
+        <li>
+          <span class="ok">OK</span> Imagen {preview.imageWidth} × {preview.imageHeight} px
+        </li>
+        <li>
+          <span class={isLocal ? 'warn' : 'ok'}>{isLocal ? 'LOCAL' : 'OK'}</span>
+          Dominio actual: <code>{host}</code>
+          {
+            isLocal && (
+              <span>
+                {' '}— con <code>localhost</code> la tarjeta no se genera en WhatsApp
+                real. Es normal en local: cambia <code>SITE_URL</code> en <code>.env</code>
+                cuando tengas dominio.
+              </span>
+            )
+          }
+        </li>
+      </ul>
+
+      <p class="cmd">
+        Verificación por consola (con <code>npm run dev</code> arrancado):
+        <code class="block">npm run check:og</code>
+      </p>
+    </section>
+
+    <p class="back">
+      <a href="/sorpresa">/sorpresa</a> · <a href={site.destination}>{site.destination}</a> ·
+      <a href="/">inicio</a>
+    </p>
+  </main>
+</Layout>
+
+<style>
+  .wrap {
+    width: min(100%, 68rem);
+    margin: 0 auto;
+    padding: clamp(1.5rem, 5vw, 3rem) 1.25rem 4rem;
+  }
+
+  .kicker {
+    margin: 0 0 0.4rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+  }
+
+  h2 {
+    margin: 0 0 0.9rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .lead {
+    max-width: 60ch;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  code {
+    font-size: 0.88em;
+    color: var(--fg);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    margin: 2.5rem 0;
+  }
+
+  /* --- burbuja de chat --- */
+  .phone {
+    padding: 1.25rem 1rem;
+    border-radius: 20px;
+    border: 1px solid var(--ring);
+    background: #0d1418;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+
+  .bubble {
+    position: relative;
+    max-width: 22rem;
+    margin-left: auto;
+    padding: 4px 4px 6px;
+    border-radius: 12px 4px 12px 12px;
+    background: #144d37;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  .bubble .card {
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .bubble img,
+  .xcard img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1200 / 630;
+    object-fit: cover;
+  }
+
+  .meta {
+    padding: 0.55rem 0.7rem 0.7rem;
+  }
+
+  .c-title {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #eef2f1;
+  }
+
+  .c-desc {
+    margin: 0.2rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: rgba(238, 242, 241, 0.65);
+  }
+
+  .c-host {
+    margin: 0.35rem 0 0;
+    font-size: 0.76rem;
+    color: rgba(238, 242, 241, 0.45);
+  }
+
+  .msg {
+    margin: 0.45rem 0.5rem 0.2rem;
+    font-size: 0.85rem;
+    color: #cfe9dc;
+    word-break: break-all;
+  }
+
+  .time {
+    display: block;
+    padding-right: 0.5rem;
+    text-align: right;
+    font-size: 0.68rem;
+    color: rgba(207, 233, 220, 0.55);
+  }
+
+  /* --- tarjeta grande --- */
+  .xcard {
+    max-width: 26rem;
+    border: 1px solid var(--ring);
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .xmeta {
+    padding: 0.75rem 0.9rem 0.9rem;
+  }
+
+  .xmeta .c-host {
+    margin: 0 0 0.25rem;
+  }
+
+  /* --- comprobaciones --- */
+  .checks {
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--ring);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .checks ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .checks li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 0.92rem;
+  }
+
+  .checks li:last-child {
+    border-bottom: 0;
+  }
+
+  .ok,
+  .warn {
+    display: inline-block;
+    min-width: 3.4rem;
+    margin-right: 0.6rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  .ok {
+    background: rgba(120, 220, 160, 0.15);
+    color: #7cdca4;
+  }
+
+  .warn {
+    background: rgba(255, 200, 120, 0.15);
+    color: #ffc878;
+  }
+
+  .cmd {
+    margin: 1.25rem 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .block {
+    display: block;
+    margin-top: 0.5rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--ring);
+  }
+
+  .back {
+    margin-top: 2rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+</style>

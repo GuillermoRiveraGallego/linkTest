@@ -1,0 +1,117 @@
+/* ---------------------------------------------------------------
+   Estilos globales. CSS plano, sin frameworks.
+   --------------------------------------------------------------- */
+
+:root {
+  --bg: #0b0b10;
+  --bg-soft: #14141d;
+  --fg: #f4f1ea;
+  --muted: #a9a4b8;
+  --accent: #ff8fb1;
+  --accent-2: #8f9cff;
+  --ring: rgba(255, 255, 255, 0.08);
+
+  --font-display: 'Georgia', 'Times New Roman', serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+    'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+}
+
+/* Fondo con dos halos suaves, compartido por las pantallas */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60ch 40ch at 20% 15%, rgba(255, 143, 177, 0.18), transparent 60%),
+    radial-gradient(60ch 40ch at 85% 85%, rgba(143, 156, 255, 0.16), transparent 60%),
+    var(--bg);
+}
+
+/* Centrado a pantalla completa */
+.screen {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+
+/* --- Animaciones reutilizables --- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes float {
+  from {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  to {
+    transform: translateY(-120vh) rotate(220deg);
+    opacity: 0;
+  }
+}
+
+.rise {
+  animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

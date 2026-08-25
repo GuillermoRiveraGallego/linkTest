@@ -1,0 +1,133 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { preview, site } from '../config/site';
+
+const base = Astro.site ?? new URL('http://localhost:4321');
+const shareURL = new URL('/sorpresa', base).href;
+---
+
+<Layout
+  title="Sorpresa de cumpleaños"
+  ogTitle="Sorpresa de cumpleaños"
+  description="Una pequeña web hecha a mano para felicitar un cumpleaños."
+>
+  <div class="aurora"></div>
+
+  <main class="screen">
+    <div class="panel rise">
+      <p class="kicker">Panel interno · no compartas esta página</p>
+      <h1>Sorpresa de cumpleaños</h1>
+      <p class="lead">
+        Comparte por WhatsApp el enlace de abajo. Quien lo abra verá una pantalla
+        de espera y pasará automáticamente a la página de cumpleaños.
+      </p>
+
+      <p class="share-label">Enlace para compartir</p>
+      <code class="share">{shareURL}</code>
+
+      <div class="links">
+        <a class="btn primary" href="/sorpresa">Ver /sorpresa</a>
+        <a class="btn" href={site.destination}>Ver {site.destination}</a>
+      </div>
+
+      <ul class="notes">
+        <li>Preview: <strong>{preview.title}</strong> — {preview.description}</li>
+        <li>Textos de la preview: <code>src/config/site.ts</code></li>
+        <li>Imagen de la preview: <code>public{preview.image}</code> (1200 × 630 px)</li>
+        <li>Dominio de producción: <code>SITE_URL</code> en el archivo <code>.env</code></li>
+      </ul>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .panel {
+    width: min(100%, 44rem);
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    text-align: left;
+    border: 1px solid var(--ring);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .kicker {
+    margin: 0 0 0.75rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
+  }
+
+  .lead {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .share-label {
+    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .share {
+    display: block;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--ring);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    font-size: 0.95rem;
+    word-break: break-all;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin: 1.5rem 0 0;
+  }
+
+  .btn {
+    padding: 0.6rem 1.1rem;
+    border: 1px solid var(--ring);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--fg);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background 160ms ease, transform 160ms ease;
+  }
+
+  .btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .btn.primary {
+    border-color: transparent;
+    background: linear-gradient(100deg, var(--accent), var(--accent-2));
+    color: #14101a;
+    font-weight: 600;
+  }
+
+  .notes {
+    margin: 1.75rem 0 0;
+    padding-left: 1.1rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.9;
+  }
+
+  .notes code {
+    color: var(--fg);
+    font-size: 0.85rem;
+  }
+</style>

@@ -1,0 +1,77 @@
+---
+import '../styles/global.css';
+import { preview, site } from '../config/site';
+
+interface Props {
+  /** Titulo del documento (<title>) */
+  title?: string;
+  /** Titulo de la tarjeta social */
+  ogTitle?: string;
+  /** Descripcion de la tarjeta social */
+  description?: string;
+  /** Imagen de la tarjeta social (ruta relativa dentro de /public) */
+  image?: string;
+  /** Si es false, se pide a los buscadores que no indexen la pagina */
+  index?: boolean;
+}
+
+const {
+  title = preview.title,
+  ogTitle = preview.title,
+  description = preview.description,
+  image = preview.image,
+  index = false,
+} = Astro.props;
+
+// Astro.site viene de `site` en astro.config.mjs (SITE_URL del .env).
+// new URL(...) garantiza URLs absolutas correctas en og:image y og:url.
+const base = Astro.site ?? new URL('http://localhost:4321');
+// Se quita la barra final (salvo en la raiz) para que og:url coincida
+// exactamente con el enlace que se comparte: https://dominio.com/sorpresa
+const path = Astro.url.pathname.replace(/(.)\/$/, '$1');
+const canonicalURL = new URL(path, base);
+const imageURL = new URL(image, base);
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL.href} />
+    <meta name="robots" content={index ? 'index, follow' : 'noindex, follow'} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#0b0b10" />
+
+    <!-- Open Graph (WhatsApp, Telegram, Facebook, Signal...) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:url" content={canonicalURL.href} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={imageURL.href} />
+    <meta property="og:image:secure_url" content={imageURL.href} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content={String(preview.imageWidth)} />
+    <meta property="og:image:height" content={String(preview.imageHeight)} />
+    <meta property="og:image:alt" content={preview.imageAlt} />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalURL.href} />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageURL.href} />
+    <meta name="twitter:image:alt" content={preview.imageAlt} />
+
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
