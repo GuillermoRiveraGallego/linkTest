@@ -21,7 +21,7 @@ const CONFIG = {
   photo: 'public/foto.jpg',
 
   /**
-   * Como encajar la foto en el formato 1200 x 630:
+   * Como encajar la foto en el formato 1200 x 630:d
    *
    *   'cover' -> la recorta para llenar el marco. Sin bordes, pero
    *              se pierde parte de arriba y de abajo.
