@@ -23,7 +23,7 @@ const CONFIG = {
   /** Tu avatar. Opcional: si no existe, se dibuja un circulo con la inicial. */
   avatar: 'public/avatar.jpg',
   /** Tu nombre de usuario. USA EL TUYO, no el de otra persona. */
-  handle: '@guille',
+  handle: '@guilles',
   /** Linea pequena bajo el nombre */
   meta: 'hace 2 h',
   /** Pie de la publicacion */
