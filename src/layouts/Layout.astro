@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { preview, site } from '../config/site';
+import { preview, site, withBase, resolveOrigin } from '../config/site';
 
 interface Props {
   /** Titulo del documento (<title>) */
@@ -23,14 +23,21 @@ const {
   index = false,
 } = Astro.props;
 
-// Astro.site viene de `site` en astro.config.mjs (SITE_URL del .env).
 // new URL(...) garantiza URLs absolutas correctas en og:image y og:url.
-const base = Astro.site ?? new URL('http://localhost:4321');
-// Se quita la barra final (salvo en la raiz) para que og:url coincida
-// exactamente con el enlace que se comparte: https://dominio.com/sorpresa
-const path = Astro.url.pathname.replace(/(.)\/$/, '$1');
-const canonicalURL = new URL(path, base);
-const imageURL = new URL(image, base);
+const origin = resolveOrigin(Astro.url, Astro.site);
+// Se limpia la ruta para que og:url coincida EXACTAMENTE con el enlace que
+// se comparte (https://.../sorpresa), no con el archivo fisico del build:
+//   /sorpresa.html  -> /sorpresa      (build.format: 'file')
+//   /index.html     -> /
+//   /algo/          -> /algo
+const path =
+  Astro.url.pathname
+    .replace(/index\.html$/, '')
+    .replace(/\.html$/, '')
+    .replace(/(.)\/$/, '$1') || '/';
+// withBase() anade la subcarpeta del repo en GitHub Pages (p.ej. /mi-repo).
+const canonicalURL = new URL(path, origin);
+const imageURL = new URL(withBase(image), origin);
 ---
 
 <!doctype html>
@@ -44,7 +51,7 @@ const imageURL = new URL(image, base);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL.href} />
     <meta name="robots" content={index ? 'index, follow' : 'noindex, follow'} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
     <meta name="theme-color" content="#0b0b10" />
 
     <!-- Open Graph (WhatsApp, Telegram, Facebook, Signal...) -->

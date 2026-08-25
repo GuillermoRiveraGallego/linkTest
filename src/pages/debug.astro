@@ -1,16 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { preview, site } from '../config/site';
+import { preview, site, withBase, resolveOrigin } from '../config/site';
 
 /**
  * Pagina SOLO para uso local: simula como se vera la tarjeta al
  * compartir el enlace. No la compartas ni la despliegues como enlace.
  */
-const base = Astro.site ?? new URL('http://localhost:4321');
-const shareURL = new URL('/sorpresa', base);
+const base = resolveOrigin(Astro.url, Astro.site);
+const shareURL = new URL(withBase('/sorpresa'), base);
 const host = shareURL.host;
 const isLocal = /^(localhost|127\.0\.0\.1|\[?::1\]?)(:\d+)?$/.test(host);
-const imageURL = new URL(preview.image, base);
+const imageURL = new URL(withBase(preview.image), base);
 ---
 
 <Layout title="Vista previa (local)" description="Simulador local de la tarjeta">
@@ -34,7 +34,7 @@ const imageURL = new URL(preview.image, base);
         <div class="phone">
           <div class="bubble">
             <div class="card">
-              <img src={preview.image} alt={preview.imageAlt} width="1200" height="630" />
+              <img src={withBase(preview.image)} alt={preview.imageAlt} width="1200" height="630" />
               <div class="meta">
                 <p class="c-title">{preview.title}</p>
                 <p class="c-desc">{preview.description}</p>
@@ -51,7 +51,7 @@ const imageURL = new URL(preview.image, base);
       <div class="col">
         <h2>Tarjeta grande (summary_large_image)</h2>
         <div class="xcard">
-          <img src={preview.image} alt={preview.imageAlt} width="1200" height="630" />
+          <img src={withBase(preview.image)} alt={preview.imageAlt} width="1200" height="630" />
           <div class="xmeta">
             <p class="c-host">{host}</p>
             <p class="c-title">{preview.title}</p>
@@ -97,8 +97,9 @@ const imageURL = new URL(preview.image, base);
     </section>
 
     <p class="back">
-      <a href="/sorpresa">/sorpresa</a> · <a href={site.destination}>{site.destination}</a> ·
-      <a href="/">inicio</a>
+      <a href={withBase('/sorpresa')}>/sorpresa</a> ·
+      <a href={withBase(site.destination)}>{site.destination}</a> ·
+      <a href={withBase('/')}>inicio</a>
     </p>
   </main>
 </Layout>

@@ -22,6 +22,17 @@ const BASE_PATH = process.env.BASE_PATH ?? fileEnv.BASE_PATH ?? '';
 // Normaliza: '' | '/repo' (sin barra final)
 const base = BASE_PATH.trim().replace(/\/+$/, '');
 
+// Aviso util en Windows: Git Bash convierte `BASE_PATH=/repo` en una ruta
+// tipo `C:/Program Files/Git/repo`. Si eso pasara, el sitio se desplegaria
+// con enlaces rotos, asi que preferimos fallar aqui.
+if (base && !/^\/[A-Za-z0-9._-]+$/.test(base)) {
+  throw new Error(
+    `BASE_PATH invalido: "${BASE_PATH}". Debe ser vacio o "/nombre-del-repo".
+` +
+      'Si lo has puesto en linea desde Git Bash, ponlo en el archivo .env en su lugar.',
+  );
+}
+
 export default defineConfig({
   site: SITE_URL,
   base: base || undefined,

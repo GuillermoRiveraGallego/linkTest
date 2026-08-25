@@ -1,9 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { preview, site } from '../config/site';
+import { preview, site, withBase, resolveOrigin } from '../config/site';
 
-const base = Astro.site ?? new URL('http://localhost:4321');
-const shareURL = new URL('/sorpresa', base).href;
+const origin = resolveOrigin(Astro.url, Astro.site);
+const shareURL = new URL(withBase('/sorpresa'), origin).href;
 ---
 
 <Layout
@@ -26,15 +26,16 @@ const shareURL = new URL('/sorpresa', base).href;
       <code class="share">{shareURL}</code>
 
       <div class="links">
-        <a class="btn primary" href="/sorpresa">Ver /sorpresa</a>
-        <a class="btn" href={site.destination}>Ver {site.destination}</a>
+        <a class="btn primary" href={withBase('/sorpresa')}>Ver /sorpresa</a>
+        <a class="btn" href={withBase(site.destination)}>Ver {site.destination}</a>
       </div>
 
       <ul class="notes">
         <li>Preview: <strong>{preview.title}</strong> — {preview.description}</li>
         <li>Textos de la preview: <code>src/config/site.ts</code></li>
         <li>Imagen de la preview: <code>public{preview.image}</code> (1200 × 630 px)</li>
-        <li>Dominio de producción: <code>SITE_URL</code> en el archivo <code>.env</code></li>
+        <li>Dominio de producción: lo calcula solo <code>.github/workflows/deploy.yml</code></li>
+        <li>Simular la tarjeta en local: <a href={withBase('/debug')}>/debug</a></li>
       </ul>
     </div>
   </main>

@@ -1,9 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { site } from '../config/site';
+import { site, withBase } from '../config/site';
 
 // Estos valores viajan al script del cliente (ver define:vars mas abajo).
-const destination = site.destination;
+// withBase() => en GitHub Pages redirige a /mi-repo/viewer, no a /viewer.
+const destination = withBase(site.destination);
 const delay = site.redirectDelayMs;
 ---
 
