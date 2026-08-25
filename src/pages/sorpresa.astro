@@ -1,70 +1,139 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { site, withBase } from '../config/site';
+import { site } from '../config/site';
 
-// Estos valores viajan al script del cliente (ver define:vars mas abajo).
-// withBase() => en GitHub Pages redirige a /mi-repo/viewer, no a /viewer.
-const destination = withBase(site.destination);
-const delay = site.redirectDelayMs;
+// ---------------------------------------------------------------
+//  AQUI SE EDITAN LOS TEXTOS DE LA SORPRESA
+// ---------------------------------------------------------------
+const espera = 'Tengo una sorpresa para ti...';
+const titulo = '🎉 Sorpresa 🎉';
+const subtitulo = 'Esto es solo el principio...';
+const pie = 'Feliz cumpleaños ❤️';
+
+const delay = site.revealDelayMs;
+
+// Confeti decorativo: posiciones calculadas en el build.
+const confetti = Array.from({ length: 14 }, (_, i) => ({
+  left: (i * 7.3 + 3) % 100,
+  delay: (i % 7) * 1.1,
+  duration: 9 + (i % 5) * 1.6,
+  emoji: ['🎈', '✨', '🎊', '💫', '🎁'][i % 5],
+}));
 ---
 
 {/*
-  IMPORTANTE: esta pagina NO redirige desde el servidor.
-  El HTML se sirve completo con todas las etiquetas Open Graph para que
-  el crawler de WhatsApp pueda leerlas. La redireccion a /viewer ocurre
-  solo en el navegador, ~1 s despues, mediante JavaScript.
+  Esta es la UNICA pagina de la sorpresa. No hay redireccion ni una segunda
+  URL que alguien pueda abrir por su cuenta: la felicitacion vive aqui dentro
+  y se descubre sola al cabo de ~1 s.
+
+  El HTML se sirve entero con las etiquetas Open Graph para que el crawler de
+  WhatsApp genere la tarjeta. Los crawlers no ejecutan JavaScript, asi que
+  nunca llegan a "abrir" la sorpresa.
 */}
 <Layout title="Tengo algo para ti 👀">
   <div class="aurora"></div>
 
-  <main class="screen">
-    <div class="gift rise" aria-hidden="true">🎁</div>
-
-    <p class="line rise">Tengo una sorpresa para ti...</p>
-
-    <div class="dots rise" aria-hidden="true">
+  <!-- 1. Pantalla de espera -->
+  <section id="wait" class="screen">
+    <div class="gift" aria-hidden="true">🎁</div>
+    <p class="wait-line">{espera}</p>
+    <div class="dots" aria-hidden="true">
       <span></span><span></span><span></span>
     </div>
+  </section>
 
-    <noscript>
-      <p class="fallback">
-        Activa JavaScript o <a href={destination}>pulsa aquí para continuar</a>.
-      </p>
-    </noscript>
-  </main>
+  <!-- 2. La sorpresa, oculta hasta que pasa el tiempo -->
+  <section id="reveal" class="screen" aria-hidden="true">
+    <div class="confetti" aria-hidden="true">
+      {
+        confetti.map((c) => (
+          <span
+            style={`left:${c.left}%; animation-delay:${c.delay}s; animation-duration:${c.duration}s;`}
+          >
+            {c.emoji}
+          </span>
+        ))
+      }
+    </div>
+
+    <div class="card">
+      <h1 class="title">{titulo}</h1>
+      <p class="subtitle">{subtitulo}</p>
+      <div class="rule" aria-hidden="true"></div>
+      <p class="footnote">{pie}</p>
+    </div>
+  </section>
 </Layout>
 
-<script define:vars={{ destination, delay }}>
-  // Redireccion en cliente: los crawlers (WhatsApp, Telegram, X...) no la ejecutan,
-  // asi que siguen viendo el HTML con los metadatos Open Graph.
+<script define:vars={{ delay }}>
+  const wait = document.getElementById('wait');
+  const reveal = document.getElementById('reveal');
+
   window.setTimeout(() => {
-    // replace() evita que el boton "atras" vuelva a caer en esta pantalla.
-    window.location.replace(destination);
+    document.body.classList.add('revealed');
+    wait?.setAttribute('aria-hidden', 'true');
+    reveal?.removeAttribute('aria-hidden');
   }, delay);
 </script>
 
 <style>
+  /* Las dos pantallas ocupan el mismo sitio; solo se ve una. */
+  #wait,
+  #reveal {
+    position: fixed;
+    inset: 0;
+  }
+
+  #reveal {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 700ms ease;
+  }
+
+  #wait {
+    opacity: 1;
+    transition:
+      opacity 450ms ease,
+      visibility 0s linear 450ms;
+  }
+
+  /* Sin JavaScript no hay espera: se ve la sorpresa directamente. */
+  :global(html.no-js) #wait {
+    display: none;
+  }
+
+  :global(html.no-js) #reveal,
+  :global(body.revealed) #reveal {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  :global(body.revealed) #wait {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* ---------- pantalla de espera ---------- */
   .gift {
     font-size: clamp(3rem, 12vw, 4.5rem);
     line-height: 1;
-    animation-delay: 60ms;
+    animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 60ms both;
   }
 
-  .line {
+  .wait-line {
     margin: 0;
     font-family: var(--font-display);
     font-size: clamp(1.35rem, 5.5vw, 2.1rem);
     font-weight: 400;
-    letter-spacing: 0.01em;
-    color: var(--fg);
-    animation-delay: 180ms;
+    animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
   }
 
   .dots {
     display: flex;
     gap: 0.5rem;
     margin-top: 0.35rem;
-    animation-delay: 320ms;
+    animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 320ms both;
   }
 
   .dots span {
@@ -84,9 +153,100 @@ const delay = site.redirectDelayMs;
     animation-delay: 0.3s;
   }
 
-  .fallback {
-    margin-top: 1.5rem;
+  /* ---------- la sorpresa ---------- */
+  .card {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 36rem);
+    padding: clamp(2rem, 7vw, 3.25rem) clamp(1.25rem, 6vw, 2.75rem);
+    border: 1px solid var(--ring);
+    border-radius: 24px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.02)
+    );
+    backdrop-filter: blur(10px);
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.8);
+  }
+
+  .title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.1rem, 9vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    background: linear-gradient(100deg, var(--fg), var(--accent) 55%, var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle {
+    margin: 1rem 0 0;
+    font-size: clamp(1rem, 4vw, 1.2rem);
     color: var(--muted);
+  }
+
+  .rule {
+    width: 64px;
+    height: 1px;
+    margin: 2rem auto;
+    background: linear-gradient(90deg, transparent, var(--ring), transparent);
+  }
+
+  .footnote {
+    margin: 0;
     font-size: 0.95rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(244, 241, 234, 0.75);
+  }
+
+  /* La animacion de entrada arranca solo al revelarse. */
+  :global(body.revealed) .title {
+    animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+  }
+
+  :global(body.revealed) .subtitle {
+    animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 400ms both;
+  }
+
+  :global(body.revealed) .rule {
+    animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 620ms both;
+  }
+
+  :global(body.revealed) .footnote {
+    animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 820ms both;
+  }
+
+  /* ---------- confeti ---------- */
+  .confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .confetti span {
+    position: absolute;
+    bottom: -10vh;
+    font-size: 1.35rem;
+    opacity: 0;
+    animation-name: float;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-play-state: paused;
+  }
+
+  :global(body.revealed) .confetti span {
+    animation-play-state: running;
+  }
+
+  @media (max-width: 420px) {
+    .confetti span {
+      font-size: 1.1rem;
+    }
   }
 </style>

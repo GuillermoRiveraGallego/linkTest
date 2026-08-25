@@ -24,10 +24,8 @@ export const site = {
   name: 'Una sorpresa para ti',
   /** Idioma del documento */
   lang: 'es',
-  /** Ruta a la que redirige /sorpresa (sin la base del repo) */
-  destination: '/viewer',
-  /** Milisegundos que se muestra la pantalla de espera antes de redirigir */
-  redirectDelayMs: 1000,
+  /** Milisegundos que se muestra la pantalla de espera antes de revelar */
+  revealDelayMs: 1000,
 } as const;
 
 /**

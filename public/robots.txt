@@ -1,0 +1,3 @@
+# Esto no es un sitio publico: solo se llega por el enlace que se comparte.
+User-agent: *
+Disallow: /

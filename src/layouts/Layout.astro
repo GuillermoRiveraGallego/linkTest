@@ -41,9 +41,13 @@ const imageURL = new URL(withBase(image), origin);
 ---
 
 <!doctype html>
-<html lang={site.lang}>
+<html lang={site.lang} class="no-js">
   <head>
     <meta charset="utf-8" />
+    <script is:inline>
+      // Marca que hay JavaScript. Si no lo hay, la sorpresa se muestra directa.
+      document.documentElement.classList.remove('no-js');
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
 

@@ -5,12 +5,14 @@ y desplegar en **GitHub Pages**.
 
 ## Rutas
 
-| Ruta        | Qué hace                                                                 |
-|-------------|--------------------------------------------------------------------------|
-| `/`         | Panel interno con el enlace a compartir. **No lo compartas.**             |
-| `/sorpresa` | **Enlace a compartir.** Metadatos Open Graph + pantalla de espera (~1 s). |
-| `/viewer`   | Página de cumpleaños (la que personalizarás).                            |
-| `/debug`    | Simulador local de la tarjeta. Solo para ti.                              |
+| Ruta        | Qué hace                                                                    |
+|-------------|-----------------------------------------------------------------------------|
+| `/sorpresa` | **La única página.** Metadatos Open Graph, espera ~1 s y revela la sorpresa. |
+| `/`         | Portada neutra a propósito: no destripa nada si recortan la URL.             |
+| `/debug`    | Herramienta local. En el sitio publicado no muestra nada.                    |
+
+No existe ninguna otra URL: la felicitación vive dentro de `/sorpresa` y se
+descubre ahí mismo, así que nadie puede llegar a ella adivinando una dirección.
 
 ## Probar en local
 
@@ -23,8 +25,7 @@ La consola dice el puerto (normalmente `http://localhost:4321`; si está ocupado
 Astro elige otro y lo indica). Abre:
 
 - `/debug` → ves la tarjeta tal y como quedará al compartir el enlace
-- `/sorpresa` → la pantalla de espera y el salto a `/viewer`
-- `/viewer` → la página de cumpleaños
+- `/sorpresa` → la pantalla de espera y, al segundo, la sorpresa
 
 Comprobar los metadatos como lo hace el bot de WhatsApp (con `npm run dev` abierto):
 
@@ -66,19 +67,22 @@ npm run check:og -- https://TU-USUARIO.github.io/TU-REPO/sorpresa
 | Quiero cambiar…                   | Archivo                                    |
 |-----------------------------------|--------------------------------------------|
 | Título/descripción de la preview  | `src/config/site.ts` → `preview`           |
-| Imagen de la preview (1200×630)   | `public/preview.jpg`                       |
-| Diseño de la página de cumpleaños | `src/pages/viewer.astro`                   |
-| Retardo antes de redirigir        | `src/config/site.ts` → `redirectDelayMs`   |
-| Destino de la redirección         | `src/config/site.ts` → `destination`       |
+| La foto de la tarjeta             | `public/foto.jpg` + `npm run generate:preview` |
+| Recorte de la foto                | `scripts/generate-preview.mjs` → `CONFIG.fit` |
+| Textos de la sorpresa             | `src/pages/sorpresa.astro` (arriba del todo) |
+| Retardo antes de revelar          | `src/config/site.ts` → `revealDelayMs`     |
 | URL de producción                 | nada: la calcula el workflow               |
 
-Regenerar el placeholder de la preview: `npm run generate:preview`.
+Regenerar la imagen de la tarjeta: `npm run generate:preview`.
 
 ## Notas técnicas
 
-- `/sorpresa` **no** redirige desde el servidor: el HTML se sirve entero con los
-  metadatos Open Graph para que el crawler de WhatsApp los lea, y la redirección
-  ocurre solo en el navegador vía JavaScript.
+- `/sorpresa` no redirige a ninguna parte: el HTML se sirve entero con los
+  metadatos Open Graph para que el crawler de WhatsApp los lea, y la sorpresa
+  se revela en la misma página con JavaScript. Los crawlers no ejecutan JS, así
+  que leen la tarjeta sin llegar a "abrir" nada.
+- Sin JavaScript la sorpresa se ve directamente, sin espera (clase `no-js`).
+- `public/robots.txt` pide a los buscadores que no indexen el sitio.
 - En GitHub Pages de proyecto el sitio vive en `/nombre-del-repo`. Por eso toda
   ruta interna pasa por `withBase()` de `src/config/site.ts`. **Si añades enlaces
   o imágenes nuevas, usa `withBase('/lo-que-sea')`**, no `/lo-que-sea` a secas.

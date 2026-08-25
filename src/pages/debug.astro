@@ -13,10 +13,11 @@ const isLocal = /^(localhost|127\.0\.0\.1|\[?::1\]?)(:\d+)?$/.test(host);
 const imageURL = new URL(withBase(preview.image), base);
 ---
 
-<Layout title="Vista previa (local)" description="Simulador local de la tarjeta">
+<Layout title="—" description="">
   <div class="aurora"></div>
 
-  <main class="wrap">
+  {/* Herramienta local: en el sitio publicado esta pagina no muestra nada. */}
+  <main class="wrap" style={import.meta.env.PROD ? 'display:none' : undefined}>
     <header>
       <p class="kicker">Herramienta local</p>
       <h1>Así se verá el enlace</h1>
@@ -69,6 +70,11 @@ const imageURL = new URL(withBase(preview.image), base);
           <code>/sorpresa</code>, sin depender de JavaScript.
         </li>
         <li>
+          <span class="ok">OK</span> <code>/sorpresa</code> es la única página de la
+          sorpresa: la felicitación se revela ahí mismo, no hay una segunda URL
+          que alguien pueda abrir por su cuenta.
+        </li>
+        <li>
           <span class="ok">OK</span> <code>og:image</code> absoluta →
           <code>{imageURL.href}</code>
         </li>
@@ -98,7 +104,6 @@ const imageURL = new URL(withBase(preview.image), base);
 
     <p class="back">
       <a href={withBase('/sorpresa')}>/sorpresa</a> ·
-      <a href={withBase(site.destination)}>{site.destination}</a> ·
       <a href={withBase('/')}>inicio</a>
     </p>
   </main>
